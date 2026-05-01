@@ -2,6 +2,54 @@
 
 轻量级认证防御网关，作为 Nginx `auth_request` 后端，为多个子域名提供可配置的访问控制。
 
+## 截图
+
+<table>
+  <tr>
+    <td align="center">🌙 暗色主题</td>
+    <td align="center">☀️ 亮色主题</td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center"><b>登录页</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/d-1.jpg" alt="登录页-暗色" width="480"></td>
+    <td><img src="docs/l-1.jpg" alt="登录页-亮色" width="480"></td>
+  </tr>
+  <tr><td colspan="2"></td></tr>
+  <tr>
+    <td colspan="2" align="center"><b>仪表盘</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/d-2.jpg" alt="仪表盘-暗色" width="480"></td>
+    <td><img src="docs/l-2.jpg" alt="仪表盘-亮色" width="480"></td>
+  </tr>
+  <tr><td colspan="2"></td></tr>
+  <tr>
+    <td colspan="2" align="center"><b>域名配置</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/d-3.jpg" alt="域名配置-暗色" width="480"></td>
+    <td><img src="docs/l-3.jpg" alt="域名配置-亮色" width="480"></td>
+  </tr>
+  <tr><td colspan="2"></td></tr>
+  <tr>
+    <td colspan="2" align="center"><b>黑名单</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/d-4.jpg" alt="黑名单-暗色" width="480"></td>
+    <td><img src="docs/l-4.jpg" alt="黑名单-亮色" width="480"></td>
+  </tr>
+  <tr><td colspan="2"></td></tr>
+  <tr>
+    <td colspan="2" align="center"><b>认证管理</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/d5.jpg" alt="认证管理-暗色" width="480"></td>
+    <td><img src="docs/l-5.jpg" alt="认证管理-亮色" width="480"></td>
+  </tr>
+</table>
+
 ## 功能特性
 
 - **策略引擎**：按域名配置放行 / 拒绝 / 认证策略，区分内网外网
