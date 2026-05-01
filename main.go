@@ -14,9 +14,9 @@ import (
 )
 
 func main() {
-	dbPath := "akguard.db"
-	if p := os.Getenv("AKGUARD_DB"); p != "" {
-		dbPath = p
+	dbPath := "/data/akguard.db"
+	if os.Getenv("AKGUARD_DEV") == "1" {
+		dbPath = "akguard.db"
 	}
 
 	// 初始化 SQLite
