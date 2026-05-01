@@ -121,6 +121,49 @@ func AuthLogin(state *config.AppState, otpStore *middleware.OTPStore) http.Handl
 	}
 }
 
+// POST /api/auth/renew — token 自动续签
+func AuthRenew(state *config.AppState) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		gracePeriod := state.Config.Auth.TokenGracePeriod
+		if gracePeriod <= 0 {
+			middleware.JSONError(w, http.StatusUnauthorized, "renew not enabled")
+			return
+		}
+
+		cookie, err := r.Cookie(middleware.AuthCookieName)
+		if err != nil {
+			middleware.JSONError(w, http.StatusUnauthorized, "no token")
+			return
+		}
+
+		ip := resolveIP(r)
+		entry := state.Sessions.GetAny(cookie.Value)
+		if entry == nil {
+			middleware.JSONError(w, http.StatusUnauthorized, "invalid token")
+			return
+		}
+
+		if !config.IpEqual(entry.ClientIP, ip) {
+			middleware.JSONError(w, http.StatusUnauthorized, "ip mismatch")
+			return
+		}
+
+		// 检查宽限期：expires_at + grace_period > now
+		deadline := entry.ExpiresAt.Add(time.Duration(gracePeriod) * time.Second)
+		if time.Now().After(deadline) {
+			middleware.JSONError(w, http.StatusUnauthorized, "token expired beyond grace period")
+			return
+		}
+
+		// 删除旧 session，创建新 session
+		state.Sessions.Delete(cookie.Value)
+		newID := state.Sessions.Create(ip, r.UserAgent(), "auth", entry.IsInit)
+		log.Printf("[auth-renew] old=%s new=%s ip=%s", shortID(cookie.Value), shortID(newID), ip)
+		middleware.SetCookie(w, r, middleware.AuthCookieName, newID)
+		middleware.JSONSuccess(w, map[string]bool{"ok": true})
+	}
+}
+
 // POST /api/auth/logout
 func AuthLogout(state *config.AppState) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

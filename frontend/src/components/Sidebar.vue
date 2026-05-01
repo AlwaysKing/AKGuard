@@ -1,14 +1,14 @@
 <template>
   <aside class="sidebar">
     <div class="sidebar-header">
-      <span class="logo-icon">⚙</span>
+      <Shield class="logo-icon" :size="22" />
       <span class="logo-text">{{ siteTitle }}</span>
     </div>
 
     <nav class="sidebar-nav">
       <!-- 仪表盘 -->
       <router-link to="/dashboard" class="nav-item" :class="{ active: currentRoute === 'Dashboard' }">
-        <span class="nav-icon">📊</span>
+        <LayoutDashboard :size="18" class="nav-icon" />
         <span class="nav-label">仪表盘</span>
       </router-link>
 
@@ -16,15 +16,15 @@
       <div class="nav-group">
         <div class="nav-group-label">认证管理</div>
         <router-link to="/auth" class="nav-item" :class="{ active: currentRoute === 'Auth' }">
-          <span class="nav-icon">🔑</span>
+          <KeyRound :size="18" class="nav-icon" />
           <span class="nav-label">认证方式</span>
         </router-link>
         <router-link to="/networks" class="nav-item" :class="{ active: currentRoute === 'Networks' }">
-          <span class="nav-icon">🌐</span>
+          <Network :size="18" class="nav-icon" />
           <span class="nav-label">网段管理</span>
         </router-link>
         <router-link to="/domains" class="nav-item" :class="{ active: currentRoute === 'Domains' }">
-          <span class="nav-icon">🛡</span>
+          <Globe :size="18" class="nav-icon" />
           <span class="nav-label">域名策略</span>
         </router-link>
       </div>
@@ -33,19 +33,19 @@
       <div class="nav-group">
         <div class="nav-group-label">监控</div>
         <router-link to="/logs" class="nav-item" :class="{ active: currentRoute === 'AccessLog' }">
-          <span class="nav-icon">📋</span>
+          <FileText :size="18" class="nav-icon" />
           <span class="nav-label">访问日志</span>
         </router-link>
         <router-link to="/audit" class="nav-item" :class="{ active: currentRoute === 'AuditLog' }">
-          <span class="nav-icon">📝</span>
+          <ClipboardList :size="18" class="nav-icon" />
           <span class="nav-label">操作审计</span>
         </router-link>
         <router-link to="/sessions" class="nav-item" :class="{ active: currentRoute === 'Sessions' }">
-          <span class="nav-icon">👤</span>
+          <Users :size="18" class="nav-icon" />
           <span class="nav-label">会话管理</span>
         </router-link>
         <router-link to="/blacklist" class="nav-item" :class="{ active: currentRoute === 'Blacklist' }">
-          <span class="nav-icon">🚫</span>
+          <Ban :size="18" class="nav-icon" />
           <span class="nav-label">黑名单</span>
         </router-link>
       </div>
@@ -55,7 +55,7 @@
 
       <!-- 管理设置（底部） -->
       <router-link to="/admin-settings" class="nav-item" :class="{ active: currentRoute === 'AdminSettings' }">
-        <span class="nav-icon">🔐</span>
+        <Settings :size="18" class="nav-icon" />
         <span class="nav-label">管理设置</span>
       </router-link>
     </nav>
@@ -64,6 +64,19 @@
 
 <script setup>
 import { siteTitle } from '../router'
+import {
+  Shield,
+  LayoutDashboard,
+  KeyRound,
+  Network,
+  Globe,
+  FileText,
+  ClipboardList,
+  Users,
+  Ban,
+  Settings,
+} from 'lucide-vue-next'
+
 defineProps({
   currentRoute: String,
 })
@@ -91,7 +104,7 @@ defineProps({
 }
 
 .logo-icon {
-  font-size: 22px;
+  color: var(--primary-400);
 }
 
 .logo-text {
@@ -152,9 +165,6 @@ defineProps({
 }
 
 .nav-icon {
-  font-size: 16px;
-  width: 20px;
-  text-align: center;
   flex-shrink: 0;
 }
 

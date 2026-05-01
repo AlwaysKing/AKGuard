@@ -47,9 +47,36 @@ go build -o akguard .
 
 ### Docker
 
+使用 Dockerfile 构建并运行：
+
+```bash
+# 构建镜像（无论成功或失败都清理残留）
+docker build -t akguard:latest . ; docker builder prune -f
+
+# 运行容器（如果已存在同名容器则先删除）
+docker rm -f akguard 2>/dev/null ; docker run -d \
+  -p 3000:3000 \
+  -v akguard-data:/app/data \
+  --name akguard \
+  akguard:latest
+```
+
+或使用 Docker Compose：
+
 ```bash
 docker compose up -d
 ```
+
+#### 常用操作
+
+| 操作 | 命令 |
+|------|------|
+| 查看日志 | `docker logs akguard` |
+| 停止容器 | `docker stop akguard` |
+| 启动容器 | `docker start akguard` |
+| 重启容器 | `docker restart akguard` |
+| 删除容器 | `docker rm -f akguard` |
+| 删除镜像 | `docker rmi akguard:latest` |
 
 ## Nginx 集成
 

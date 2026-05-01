@@ -50,6 +50,24 @@
       </div>
     </div>
 
+    <!-- Token 自动续签 -->
+    <div class="card">
+      <div class="method-header">
+        <div class="method-info">
+          <h3>Token 自动续签</h3>
+          <p class="method-desc">token 过期后的宽限期内，访问登录页可自动续签，无需重新输入密码</p>
+        </div>
+      </div>
+      <div class="method-body">
+        <form @submit.prevent="updateGracePeriod" class="single-row">
+          <input v-model.number="gracePeriodHours" type="number" class="input" placeholder="0" min="0" step="1">
+          <span class="input-suffix">小时</span>
+          <button class="btn btn-primary" :disabled="loading">保存</button>
+        </form>
+        <p class="method-desc" style="margin-top:8px">设为 0 表示关闭自动续签功能</p>
+      </div>
+    </div>
+
     <!-- Bark 验证对话框 -->
     <Teleport to="body">
       <div v-if="showVerifyDialog" class="dialog-overlay" @click.self="showVerifyDialog = false">
@@ -87,6 +105,7 @@ const barkEnabled = ref(false)
 const barkUrl = ref('')
 const barkVerified = ref(false)
 const authPwd = ref('')
+const gracePeriodHours = ref(0)
 
 // 验证对话框
 const showVerifyDialog = ref(false)
@@ -101,6 +120,7 @@ onMounted(async () => {
     barkVerified.value = !!barkUrl.value
     passwordEnabled.value = data.auth_password_login ?? true
     barkEnabled.value = data.auth_bark_login ?? false
+    gracePeriodHours.value = Math.round((data.token_grace_period || 0) / 3600)
   } catch {}
 })
 
@@ -180,6 +200,19 @@ async function confirmBark() {
     loading.value = false
   }
 }
+
+async function updateGracePeriod() {
+  loading.value = true
+  try {
+    const seconds = Math.max(0, (gracePeriodHours.value || 0)) * 3600
+    await api.updateTokenGracePeriod(seconds)
+    toast.success(seconds > 0 ? `宽限期已设为 ${gracePeriodHours.value} 小时` : '自动续签已关闭')
+  } catch (e) {
+    toast.error(e.message || '保存失败')
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <style scoped>
@@ -230,6 +263,22 @@ async function confirmBark() {
 
 .single-row .input {
   flex: 1;
+}
+
+.input-suffix {
+  font-size: 14px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* 隐藏 number 输入框的原生上下箭头 */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 .verified-hint {

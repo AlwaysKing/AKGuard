@@ -88,6 +88,19 @@ onMounted(async () => {
     document.documentElement.setAttribute('data-theme', 'light')
   }
 
+  // 尝试自动续签：如果 cookie 中有 token，尝试 renew
+  const hasToken = document.cookie.includes('ak_token=')
+  if (hasToken && redirectUrl.value) {
+    try {
+      await api.authRenew()
+      // 续签成功，跳转回原页面
+      window.location.href = redirectUrl.value
+      return
+    } catch {
+      // 续签失败，走正常登录流程
+    }
+  }
+
   try {
     const data = await api.getLoginMethods()
     methods.passwordLogin = data.auth_password_login ?? true

@@ -9,6 +9,8 @@ import (
 	"akguard/internal/middleware"
 	"akguard/internal/model"
 
+	"strconv"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -33,6 +35,7 @@ func GetConfig(state *config.AppState) http.HandlerFunc {
 			"admin_bark_login":     cfg.Auth.AdminBarkLogin,
 			"auth_password_login":  cfg.Auth.AuthPasswordLogin,
 			"auth_bark_login":      cfg.Auth.AuthBarkLogin,
+			"token_grace_period":   cfg.Auth.TokenGracePeriod,
 		})
 	})
 }
@@ -47,6 +50,7 @@ func GetLoginMethods(state *config.AppState) http.HandlerFunc {
 			"admin_bark_login":     cfg.Auth.AdminBarkLogin,
 			"auth_password_login":  cfg.Auth.AuthPasswordLogin,
 			"auth_bark_login":      cfg.Auth.AuthBarkLogin,
+			"token_grace_period":   cfg.Auth.TokenGracePeriod,
 		})
 	}
 }
@@ -359,5 +363,28 @@ func UpdateSiteTitle(state *config.AppState) http.HandlerFunc {
 
 		model.InsertAuditLog("update_site_title", map[string]string{"title": req.Title}, resolveIP(r))
 		middleware.JSONSuccess(w, map[string]string{"message": "site title updated"})
+	})
+}
+
+// PUT /api/config/token-grace-period
+func UpdateTokenGracePeriod(state *config.AppState) http.HandlerFunc {
+	return middleware.RequireAdminFunc(state, func(w http.ResponseWriter, r *http.Request, entry *config.SessionEntry) {
+		var req struct {
+			Seconds int `json:"seconds"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			middleware.JSONError(w, http.StatusBadRequest, "invalid request")
+			return
+		}
+		if req.Seconds < 0 {
+			middleware.JSONError(w, http.StatusBadRequest, "seconds must be >= 0")
+			return
+		}
+
+		state.Config.Auth.TokenGracePeriod = req.Seconds
+		model.ConfigSet("token_grace_period", strconv.Itoa(req.Seconds))
+
+		model.InsertAuditLog("update_token_grace_period", req, resolveIP(r))
+		middleware.JSONSuccess(w, map[string]string{"message": "token grace period updated"})
 	})
 }

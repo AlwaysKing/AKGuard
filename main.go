@@ -53,6 +53,7 @@ func main() {
 	// API 接口
 	mux.HandleFunc("/api/auth/login", handler.AuthLogin(state, otpStore))
 	mux.HandleFunc("/api/auth/logout", handler.AuthLogout(state))
+	mux.HandleFunc("/api/auth/renew", onlyMethod(handler.AuthRenew(state), "POST"))
 	mux.HandleFunc("/api/admin/login", handler.AdminLogin(state, otpStore))
 	mux.HandleFunc("/api/admin/logout", handler.AdminLogout(state))
 	mux.HandleFunc("/api/otp/send", handler.SendOTP(state, otpStore))
@@ -72,6 +73,7 @@ func main() {
 	mux.HandleFunc("/api/config/auth-ban", onlyMethod(handler.UpdateAuthBanConfig(state), "PUT"))
 	mux.HandleFunc("/api/config/admin-ban", onlyMethod(handler.UpdateAdminBanConfig(state), "PUT"))
 	mux.HandleFunc("/api/config/site-title", onlyMethod(handler.UpdateSiteTitle(state), "PUT"))
+	mux.HandleFunc("/api/config/token-grace-period", onlyMethod(handler.UpdateTokenGracePeriod(state), "PUT"))
 	mux.HandleFunc("/api/blacklist", onlyMethod(handler.GetBlacklist(state), "GET"))
 	mux.HandleFunc("/api/blacklist/add", onlyMethod(handler.AddBlacklist(state), "POST"))
 

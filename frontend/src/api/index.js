@@ -34,6 +34,8 @@ export const api = {
     request('/api/auth/login', { method: 'POST', body: JSON.stringify({ password, otp_code: otpCode }) }),
   authLogout: () =>
     request('/api/auth/logout', { method: 'POST' }),
+  authRenew: () =>
+    request('/api/auth/renew', { method: 'POST' }),
   adminLogin: (password, otpCode) =>
     request('/api/admin/login', { method: 'POST', body: JSON.stringify({ password, otp_code: otpCode }) }),
   adminLogout: () =>
@@ -70,6 +72,8 @@ export const api = {
     request('/api/config/admin-ban', { method: 'PUT', body: JSON.stringify(config) }),
   updateSiteTitle: (title) =>
     request('/api/config/site-title', { method: 'PUT', body: JSON.stringify({ title }) }),
+  updateTokenGracePeriod: (seconds) =>
+    request('/api/config/token-grace-period', { method: 'PUT', body: JSON.stringify({ seconds }) }),
 
   // 黑名单
   getBlacklist: (type) => request(`/api/blacklist?type=${type}`),

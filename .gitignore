@@ -1,7 +1,7 @@
 akguard
-akguard.db
-akguard.db-shm
-akguard.db-wal
+*.db
+*.db-shm
+*.db-wal
 akauth.db
 akauth.db-shm
 akauth.db-wal

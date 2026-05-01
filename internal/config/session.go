@@ -67,6 +67,13 @@ func (s *SessionStore) Get(id string) *SessionEntry {
 	return entry
 }
 
+// GetAny 获取会话（忽略过期，用于宽限期续签检查）
+func (s *SessionStore) GetAny(id string) *SessionEntry {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.sessions[id]
+}
+
 // Delete 删除会话
 func (s *SessionStore) Delete(id string) {
 	s.mu.Lock()
@@ -128,14 +135,14 @@ func (s *SessionStore) Validate(id, clientIP, expectedType string) (*SessionEntr
 	if entry.TokenType != expectedType {
 		return nil, false
 	}
-	if !ipEqual(entry.ClientIP, clientIP) {
+	if !IpEqual(entry.ClientIP, clientIP) {
 		return nil, false
 	}
 	return entry, true
 }
 
-// ipEqual 比较两个 IP（去掉端口后比较）
-func ipEqual(a, b string) bool {
+// IpEqual 比较两个 IP（去掉端口后比较）
+func IpEqual(a, b string) bool {
 	aIP, _, err := net.SplitHostPort(a)
 	if err != nil {
 		aIP = a

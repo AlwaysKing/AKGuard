@@ -38,6 +38,7 @@ type AuthConfig struct {
 	AdminBarkLogin     bool         `json:"admin_bark_login"`
 	AuthPasswordLogin  bool         `json:"auth_password_login"`
 	AuthBarkLogin      bool         `json:"auth_bark_login"`
+	TokenGracePeriod   int          `json:"token_grace_period"` // 宽限期（秒），0=关闭
 	DefaultPolicy      Policy       `json:"default_policy"`
 	Domains            []DomainRule `json:"domains"`
 	AuthBan            BanConfig    `json:"auth_ban"`
@@ -189,6 +190,9 @@ func LoadConfig() *Config {
 	cfg.Auth.AdminBarkLogin = model.ConfigGetBool("admin_bark_login", false)
 	cfg.Auth.AuthPasswordLogin = model.ConfigGetBool("auth_password_login", true)
 	cfg.Auth.AuthBarkLogin = model.ConfigGetBool("auth_bark_login", false)
+
+	// Token 宽限期
+	cfg.Auth.TokenGracePeriod = model.ConfigGetInt("token_grace_period", 0)
 
 	// 自动封禁配置
 	cfg.Auth.AuthBan = BanConfig{
