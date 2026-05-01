@@ -22,7 +22,7 @@ WORKDIR /app
 COPY --from=backend-builder /app/akguard .
 COPY --from=backend-builder /app/frontend/dist ./frontend/dist
 
-EXPOSE 8080
+EXPOSE 3000
 VOLUME ["/app/config.yaml", "/app/akguard.db"]
 
 ENTRYPOINT ["./akguard"]
