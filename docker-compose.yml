@@ -4,8 +4,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - akguard-db:/app/akguard.db
+      - ./data:/app/data
+    environment:
+      - AKGUARD_DB=/app/data/akguard.db
     restart: unless-stopped
-
-volumes:
-  akguard-db:
