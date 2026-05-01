@@ -13,7 +13,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
-RUN CGO_ENABLED=1 go build -o akguard .
+RUN CGO_ENABLED=0 go build -o akguard .
 
 # 阶段3: 最终镜像
 FROM alpine:3.20
