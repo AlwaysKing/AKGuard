@@ -26,27 +26,27 @@
   </tr>
   <tr><td colspan="2"></td></tr>
   <tr>
-    <td colspan="2" align="center"><b>域名配置</b></td>
-  </tr>
-  <tr>
-    <td><img src="docs/d-3.jpg" alt="域名配置-暗色" width="480"></td>
-    <td><img src="docs/l-3.jpg" alt="域名配置-亮色" width="480"></td>
-  </tr>
-  <tr><td colspan="2"></td></tr>
-  <tr>
-    <td colspan="2" align="center"><b>黑名单</b></td>
-  </tr>
-  <tr>
-    <td><img src="docs/d-4.jpg" alt="黑名单-暗色" width="480"></td>
-    <td><img src="docs/l-4.jpg" alt="黑名单-亮色" width="480"></td>
-  </tr>
-  <tr><td colspan="2"></td></tr>
-  <tr>
     <td colspan="2" align="center"><b>认证管理</b></td>
   </tr>
   <tr>
-    <td><img src="docs/d5.jpg" alt="认证管理-暗色" width="480"></td>
-    <td><img src="docs/l-5.jpg" alt="认证管理-亮色" width="480"></td>
+    <td><img src="docs/d-3.jpg" alt="认证管理-暗色" width="480"></td>
+    <td><img src="docs/l-3.jpg" alt="认证管理-亮色" width="480"></td>
+  </tr>
+  <tr><td colspan="2"></td></tr>
+  <tr>
+    <td colspan="2" align="center"><b>网段管理</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/d-4.jpg" alt="网段管理-暗色" width="480"></td>
+    <td><img src="docs/l-4.jpg" alt="网段管理-亮色" width="480"></td>
+  </tr>
+  <tr><td colspan="2"></td></tr>
+  <tr>
+    <td colspan="2" align="center"><b>域名配置</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/d5.jpg" alt="域名配置-暗色" width="480"></td>
+    <td><img src="docs/l-5.jpg" alt="域名配置-亮色" width="480"></td>
   </tr>
 </table>
 
