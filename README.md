@@ -43,7 +43,6 @@ go build -o akguard .
 |------|------|--------|
 | `AKGUARD_LISTEN_PORT` | 监听端口 | `3000` |
 | `AKGUARD_DB` | 数据库文件路径 | `akguard.db` |
-| `AKGUARD_DEV` | 开发模式（CORS） | `0` |
 
 ### Docker
 
