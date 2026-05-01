@@ -1,0 +1,15 @@
+services:
+  akguard:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config.yaml:/app/config.yaml
+      - akguard-db:/app/akguard.db
+      - ./frontend/dist:/app/frontend/dist  # 方便独立更新前端
+    environment:
+      - AKGUARD_DEV=0
+    restart: unless-stopped
+
+volumes:
+  akguard-db:

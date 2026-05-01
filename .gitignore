@@ -1,0 +1,12 @@
+akguard
+akguard.db
+akguard.db-shm
+akguard.db-wal
+akauth.db
+akauth.db-shm
+akauth.db-wal
+.DS_Store
+frontend/node_modules
+frontend/dist
+.claude/
+.superpowers/
