@@ -23,6 +23,5 @@ COPY --from=backend-builder /app/akguard .
 COPY --from=backend-builder /app/frontend/dist ./frontend/dist
 
 EXPOSE 3000
-VOLUME ["/app/akguard.db"]
 
 ENTRYPOINT ["./akguard"]
