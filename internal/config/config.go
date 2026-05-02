@@ -1,6 +1,8 @@
 package config
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"log"
 	"net"
 
@@ -38,6 +40,8 @@ type AuthConfig struct {
 	AdminBarkLogin     bool         `json:"admin_bark_login"`
 	AuthPasswordLogin  bool         `json:"auth_password_login"`
 	AuthBarkLogin      bool         `json:"auth_bark_login"`
+	AuthApiKeyLogin    bool         `json:"auth_apikey_login"`
+	ApiKey             string       `json:"-"`
 	TokenGracePeriod   int          `json:"token_grace_period"` // 宽限期（秒），0=关闭
 	DefaultPolicy      Policy       `json:"default_policy"`
 	Domains            []DomainRule `json:"domains"`
@@ -116,6 +120,14 @@ func IsValidAction(action string) bool {
 	return action == "reject" || action == "pass" || action == "auth"
 }
 
+func GenerateApiKey() string {
+	b := make([]byte, 32) // 32 bytes = 64 hex chars
+	if _, err := rand.Read(b); err != nil {
+		log.Fatal("failed to generate api key:", err)
+	}
+	return hex.EncodeToString(b)
+}
+
 func ResolvePolicy(host string, cfg *Config) Policy {
 	h := stripPort(host)
 	// 第一轮：精确匹配（优先级最高）
@@ -190,6 +202,15 @@ func LoadConfig() *Config {
 	cfg.Auth.AdminBarkLogin = model.ConfigGetBool("admin_bark_login", false)
 	cfg.Auth.AuthPasswordLogin = model.ConfigGetBool("auth_password_login", true)
 	cfg.Auth.AuthBarkLogin = model.ConfigGetBool("auth_bark_login", false)
+
+	// API Key
+	cfg.Auth.ApiKey = model.ConfigGet("api_key")
+	if cfg.Auth.ApiKey == "" {
+		key := GenerateApiKey()
+		cfg.Auth.ApiKey = key
+		model.ConfigSet("api_key", key)
+	}
+	cfg.Auth.AuthApiKeyLogin = model.ConfigGetBool("auth_apikey_login", false)
 
 	// Token 宽限期
 	cfg.Auth.TokenGracePeriod = model.ConfigGetInt("token_grace_period", 0)

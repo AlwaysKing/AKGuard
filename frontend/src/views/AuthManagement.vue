@@ -50,6 +50,29 @@
       </div>
     </div>
 
+    <!-- API Key 认证 -->
+    <div class="card">
+      <div class="method-header">
+        <div class="method-info">
+          <h3>API Key 认证</h3>
+          <p class="method-desc">供程序调用使用，通过 X-AK-Token header 或 ak_token URL 参数直接通过鉴权</p>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" :checked="apikeyEnabled" @change="toggleMethod('apikey')">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div v-if="apikeyEnabled" class="method-body">
+        <div class="single-row">
+          <input :value="apiKey" type="text" class="input apikey-display" readonly ref="apiKeyInput">
+          <button class="btn btn-ghost" @click="copyApiKey">复制</button>
+          <button class="btn btn-primary" :disabled="loading" @click="regenerateKey">重新生成</button>
+        </div>
+        <p class="method-desc" style="margin-top:8px">程序调用时添加 header：<code>X-AK-Token: &lt;api_key&gt;</code> 或 URL 参数：<code>?ak_token=&lt;api_key&gt;</code></p>
+      </div>
+    </div>
+
     <!-- Token 自动续签 -->
     <div class="card">
       <div class="method-header">
@@ -106,6 +129,9 @@ const barkUrl = ref('')
 const barkVerified = ref(false)
 const authPwd = ref('')
 const gracePeriodHours = ref(0)
+const apikeyEnabled = ref(false)
+const apiKey = ref('')
+const apiKeyInput = ref(null)
 
 // 验证对话框
 const showVerifyDialog = ref(false)
@@ -121,28 +147,33 @@ onMounted(async () => {
     passwordEnabled.value = data.auth_password_login ?? true
     barkEnabled.value = data.auth_bark_login ?? false
     gracePeriodHours.value = Math.round((data.token_grace_period || 0) / 3600)
+    apikeyEnabled.value = data.auth_apikey_login ?? false
+    apiKey.value = data.api_key || ''
   } catch {}
 })
 
 async function toggleMethod(type) {
   let newPwd = passwordEnabled.value
   let newBark = barkEnabled.value
+  let newApikey = apikeyEnabled.value
 
   if (type === 'password') {
     newPwd = !passwordEnabled.value
-  } else {
+  } else if (type === 'bark') {
     newBark = !barkEnabled.value
+  } else if (type === 'apikey') {
+    newApikey = !apikeyEnabled.value
   }
 
   loading.value = true
   try {
-    await api.updateAuthLoginMethods(newPwd, newBark)
+    await api.updateAuthLoginMethods(newPwd, newBark, newApikey)
     passwordEnabled.value = newPwd
     barkEnabled.value = newBark
-    toast.success(type === 'password'
-      ? (newPwd ? '密码认证已启用' : '密码认证已关闭')
-      : (newBark ? 'Bark 推送认证已启用' : 'Bark 推送认证已关闭')
-    )
+    apikeyEnabled.value = newApikey
+    const labels = { password: '密码认证', bark: 'Bark 推送认证', apikey: 'API Key 认证' }
+    const enabled = { password: newPwd, bark: newBark, apikey: newApikey }
+    toast.success(enabled[type] ? `${labels[type]}已启用` : `${labels[type]}已关闭`)
   } catch (e) {
     toast.error(e.message || '操作失败')
   } finally {
@@ -209,6 +240,29 @@ async function updateGracePeriod() {
     toast.success(seconds > 0 ? `宽限期已设为 ${gracePeriodHours.value} 小时` : '自动续签已关闭')
   } catch (e) {
     toast.error(e.message || '保存失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+function copyApiKey() {
+  navigator.clipboard.writeText(apiKey.value).then(() => {
+    toast.success('API Key 已复制到剪贴板')
+  }).catch(() => {
+    apiKeyInput.value?.select()
+    document.execCommand('copy')
+    toast.success('API Key 已复制到剪贴板')
+  })
+}
+
+async function regenerateKey() {
+  loading.value = true
+  try {
+    const data = await api.regenerateApiKey()
+    apiKey.value = data.api_key
+    toast.success('API Key 已重新生成')
+  } catch (e) {
+    toast.error(e.message || '操作失败')
   } finally {
     loading.value = false
   }
@@ -285,6 +339,17 @@ input[type="number"] {
   margin-top: 8px;
   font-size: 13px;
   color: var(--success);
+}
+
+.apikey-display {
+  font-family: monospace;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.apikey-display[readonly] {
+  opacity: 0.85;
+  cursor: default;
 }
 
 /* Toggle 开关 */

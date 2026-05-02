@@ -74,6 +74,7 @@ func main() {
 	mux.HandleFunc("/api/config/admin-ban", onlyMethod(handler.UpdateAdminBanConfig(state), "PUT"))
 	mux.HandleFunc("/api/config/site-title", onlyMethod(handler.UpdateSiteTitle(state), "PUT"))
 	mux.HandleFunc("/api/config/token-grace-period", onlyMethod(handler.UpdateTokenGracePeriod(state), "PUT"))
+	mux.HandleFunc("/api/config/regenerate-apikey", onlyMethod(handler.RegenerateApiKey(state), "POST"))
 	mux.HandleFunc("/api/blacklist", onlyMethod(handler.GetBlacklist(state), "GET"))
 	mux.HandleFunc("/api/blacklist/add", onlyMethod(handler.AddBlacklist(state), "POST"))
 

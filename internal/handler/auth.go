@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"crypto/subtle"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -336,27 +337,55 @@ func Verify(state *config.AppState) http.HandlerFunc {
 		case "pass":
 			w.WriteHeader(http.StatusOK)
 		case "auth":
-			cookie, err := r.Cookie(middleware.AuthCookieName)
-			if err != nil {
-				log.Printf("[verify] host=%s action=auth no_cookie err=%v remote=%s", host, err, r.RemoteAddr)
+			// 按来源分流：cookie → session 验证，header/URL → API Key 验证
+			if cookie, err := r.Cookie(middleware.AuthCookieName); err == nil {
+				// Cookie 来源 → Session 路径
+				clientIP := realIP
+				if clientIP == "" {
+					clientIP = r.RemoteAddr
+				}
+				entry, ok := state.Sessions.Validate(cookie.Value, clientIP, "auth")
+				if !ok || entry.IsInit {
+					log.Printf("[verify] host=%s action=auth invalid session=%s... clientIP=%s remote=%s ok=%v isInit=%v entry_nil=%v",
+						host, shortID(cookie.Value), clientIP, r.RemoteAddr, ok, entry != nil && entry.IsInit, entry == nil)
+					w.WriteHeader(http.StatusUnauthorized)
+					return
+				}
+				log.Printf("[verify] host=%s action=auth OK session=%s...", host, shortID(cookie.Value))
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+
+			// Header / URL 参数来源 → API Key 路径
+			var apiKey string
+			if h := r.Header.Get("X-AK-Token"); h != "" {
+				apiKey = h
+			} else if q := r.URL.Query().Get("ak_token"); q != "" {
+				apiKey = q
+			}
+
+			if apiKey == "" {
+				log.Printf("[verify] host=%s action=auth no_token remote=%s", host, r.RemoteAddr)
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
-			clientIP := realIP
-			if clientIP == "" {
-				clientIP = r.RemoteAddr
-			}
-			entry, ok := state.Sessions.Validate(cookie.Value, clientIP, "auth")
-			if !ok || entry.IsInit {
-				log.Printf("[verify] host=%s action=auth invalid cookie=%s... clientIP=%s remote=%s ok=%v isInit=%v entry_nil=%v",
-					host, shortID(cookie.Value), clientIP, r.RemoteAddr, ok, entry != nil && entry.IsInit, entry == nil)
+
+			if !state.Config.Auth.AuthApiKeyLogin {
+				log.Printf("[verify] host=%s apikey auth disabled remote=%s", host, r.RemoteAddr)
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
-			log.Printf("[verify] host=%s action=auth OK cookie=%s...", host, shortID(cookie.Value))
+
+			if subtle.ConstantTimeCompare([]byte(apiKey), []byte(state.Config.Auth.ApiKey)) != 1 {
+				log.Printf("[verify] host=%s apikey mismatch remote=%s", host, r.RemoteAddr)
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+			log.Printf("[verify] host=%s action=auth OK via apikey remote=%s", host, r.RemoteAddr)
 			w.WriteHeader(http.StatusOK)
 		default:
 			w.WriteHeader(http.StatusUnauthorized)
 		}
 	}
 }
+

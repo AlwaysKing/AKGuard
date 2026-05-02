@@ -35,6 +35,7 @@ func GetConfig(state *config.AppState) http.HandlerFunc {
 			"admin_bark_login":     cfg.Auth.AdminBarkLogin,
 			"auth_password_login":  cfg.Auth.AuthPasswordLogin,
 			"auth_bark_login":      cfg.Auth.AuthBarkLogin,
+			"auth_apikey_login":    cfg.Auth.AuthApiKeyLogin,
 			"token_grace_period":   cfg.Auth.TokenGracePeriod,
 		})
 	})
@@ -50,6 +51,7 @@ func GetLoginMethods(state *config.AppState) http.HandlerFunc {
 			"admin_bark_login":     cfg.Auth.AdminBarkLogin,
 			"auth_password_login":  cfg.Auth.AuthPasswordLogin,
 			"auth_bark_login":      cfg.Auth.AuthBarkLogin,
+			"auth_apikey_login":    cfg.Auth.AuthApiKeyLogin,
 			"token_grace_period":   cfg.Auth.TokenGracePeriod,
 		})
 	}
@@ -312,12 +314,13 @@ func UpdateAuthLoginMethods(state *config.AppState) http.HandlerFunc {
 		var req struct {
 			PasswordLogin bool `json:"password_login"`
 			BarkLogin     bool `json:"bark_login"`
+			ApiKeyLogin   bool `json:"apikey_login"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			middleware.JSONError(w, http.StatusBadRequest, "invalid request")
 			return
 		}
-		if !req.PasswordLogin && !req.BarkLogin {
+		if !req.PasswordLogin && !req.BarkLogin && !req.ApiKeyLogin {
 			middleware.JSONError(w, http.StatusBadRequest, "at least one login method must be enabled")
 			return
 		}
@@ -328,8 +331,10 @@ func UpdateAuthLoginMethods(state *config.AppState) http.HandlerFunc {
 
 		state.Config.Auth.AuthPasswordLogin = req.PasswordLogin
 		state.Config.Auth.AuthBarkLogin = req.BarkLogin
+		state.Config.Auth.AuthApiKeyLogin = req.ApiKeyLogin
 		model.ConfigSet("auth_password_login", boolToStr(req.PasswordLogin))
 		model.ConfigSet("auth_bark_login", boolToStr(req.BarkLogin))
+		model.ConfigSet("auth_apikey_login", boolToStr(req.ApiKeyLogin))
 
 		model.InsertAuditLog("update_auth_login_methods", req, resolveIP(r))
 		middleware.JSONSuccess(w, map[string]string{"message": "auth login methods updated"})
@@ -386,5 +391,17 @@ func UpdateTokenGracePeriod(state *config.AppState) http.HandlerFunc {
 
 		model.InsertAuditLog("update_token_grace_period", req, resolveIP(r))
 		middleware.JSONSuccess(w, map[string]string{"message": "token grace period updated"})
+	})
+}
+
+// POST /api/config/regenerate-apikey — 重新生成 API Key
+func RegenerateApiKey(state *config.AppState) http.HandlerFunc {
+	return middleware.RequireAdminFunc(state, func(w http.ResponseWriter, r *http.Request, entry *config.SessionEntry) {
+		newKey := config.GenerateApiKey()
+		state.Config.Auth.ApiKey = newKey
+		model.ConfigSet("api_key", newKey)
+
+		model.InsertAuditLog("regenerate_apikey", nil, resolveIP(r))
+		middleware.JSONSuccess(w, map[string]string{"api_key": newKey})
 	})
 }

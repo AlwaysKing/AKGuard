@@ -64,8 +64,10 @@ export const api = {
     request('/api/config/default-policy', { method: 'PUT', body: JSON.stringify({ internal, external }) }),
   updateAdminLoginMethods: (passwordLogin, barkLogin) =>
     request('/api/config/admin-login-methods', { method: 'PUT', body: JSON.stringify({ password_login: passwordLogin, bark_login: barkLogin }) }),
-  updateAuthLoginMethods: (passwordLogin, barkLogin) =>
-    request('/api/config/auth-login-methods', { method: 'PUT', body: JSON.stringify({ password_login: passwordLogin, bark_login: barkLogin }) }),
+  updateAuthLoginMethods: (passwordLogin, barkLogin, apikeyLogin) =>
+    request('/api/config/auth-login-methods', { method: 'PUT', body: JSON.stringify({ password_login: passwordLogin, bark_login: barkLogin, apikey_login: apikeyLogin }) }),
+  regenerateApiKey: () =>
+    request('/api/config/regenerate-apikey', { method: 'POST' }),
   updateAuthBanConfig: (config) =>
     request('/api/config/auth-ban', { method: 'PUT', body: JSON.stringify(config) }),
   updateAdminBanConfig: (config) =>
